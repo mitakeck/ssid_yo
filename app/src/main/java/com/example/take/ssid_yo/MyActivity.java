@@ -17,9 +17,6 @@ public class MyActivity extends Activity {
         setContentView(R.layout.activity_my);
 
         // サービスを開始する
-        // Log.v("TEST", "HOGEGEGEE");
-        // Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_LONG).show();
-
         startService(new Intent(this, MyService.class));
     }
 
