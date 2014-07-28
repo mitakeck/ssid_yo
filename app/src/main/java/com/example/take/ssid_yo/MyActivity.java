@@ -2,6 +2,7 @@ package com.example.take.ssid_yo;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.net.wifi.WifiInfo;
@@ -10,13 +11,22 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 
-public class MyActivity extends Activity implements LoaderManager.LoaderCallbacks<String>{
+
+public class MyActivity extends Activity implements DialogInterface.OnClickListener{
     // Log の tag で使用する文字列を定義
     private final String TAG = "MY_ACTIVITY";
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        // none
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,17 +34,36 @@ public class MyActivity extends Activity implements LoaderManager.LoaderCallback
         setContentView(R.layout.activity_my);
 
         // サービスを開始する
-        startService(new Intent(this, MyService.class));
-
-        Bundle mBundle = new Bundle();
-        mBundle.putString("url", "http://www.drk7.jp/weather/json/27.js");
-        getLoaderManager().initLoader(0, mBundle, this);
-
+        // startService(new Intent(this, MyService.class));
 
         // SSID を取得
         String Mssid = getSSID();
         final TextView MtextViewSSID = (TextView)findViewById(R.id.ssid);
         MtextViewSSID.setText(Mssid);
+        Log.v(TAG, Mssid);
+        if(Mssid.equals("\"JellyBeans-A\"")){
+            Toast.makeText(getApplicationContext(), "YO SEND", Toast.LENGTH_LONG).show();
+            Yo.all();
+        }
+
+        // ListView のインスタンスを取得
+        ListView list = (ListView)findViewById(R.id.listView);
+        // ListView のラベルを格納する ArrayList をインスタンス化
+        ArrayList<String> labelList = new ArrayList<String>();
+        // とりあえずラベルを 20 個作る
+        for(int i=0;i<20;i++){
+            labelList.add("SEND #"+ i + "@" + Mssid);
+        }
+        // Adapter のインスタンス化
+        CustomAdapter mAdapter = new CustomAdapter(this, 0, labelList);
+        // ListView にアダプタを設定
+        list.setAdapter(mAdapter);
+        list.setDivider(null);
+
+
+        // MyHttpAsyncLoader mMyHttpAsyncLoader = new MyHttpAsyncLoader(this);
+        // mMyHttpAsyncLoader.execute("hoge");
+        // Yo.all();
     }
 
     /***
@@ -49,33 +78,6 @@ public class MyActivity extends Activity implements LoaderManager.LoaderCallback
         return Mssid;
     }
 
-    @Override
-    public Loader<String> onCreateLoader(int id, Bundle bundle){
-        MyHttpAsyncLoader loader = new MyHttpAsyncLoader(this, bundle.getString("url"));
-        loader.forceLoad();
-        return loader;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<String> loader, String body){
-        if(loader.getId() == 0){
-            if(body != null){
-                Log.v(TAG, body);
-            }
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<String> loader){
-        //
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.my, menu);
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
